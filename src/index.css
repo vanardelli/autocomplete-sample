@@ -9,8 +9,44 @@
   background: white;
 }
 
-.list-container .list-element:hover {
-  background: yellow;
+.list-container-empty {
+  width: 307px;
+  height: 100px;
+  overflow: auto;
+  border: 1px solid black;
+  text-overflow: ellipsis;
+  position: absolute;
+  text-align: center;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-container .list-element {
+  background: none;
+  color: inherit;
+  border: none;
+  font: inherit;
+  outline: inherit;
+
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.list-container .list-element:hover,
+.list-container .list-element:focus {
+  background-color: #e0e0e0;
+}
+
+.list-container .list-element:active {
+  background-color: #d1d1d1;
 }
 
 .autocomplete-input {
