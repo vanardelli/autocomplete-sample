@@ -7,17 +7,20 @@ function Autocomplete() {
   const [inputValue, setInputValue] = useState("");
   const [suggestionsList, setSuggestionsList] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSearching, setIsSearching] = useState<string | undefined>(undefined);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const selectValue = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (inputValue !== selectValue.current) {
-      setIsSearching(undefined);
+      setIsSearching(true);
       setIsLoading(true);
       const timeoutId = setTimeout(() => {
         fetchSuggestions(inputValue);
       }, 300);
       return () => clearTimeout(timeoutId);
+    } else {
+      setIsSearching(false);
+      setSuggestionsList([]);
     }
   }, [inputValue]);
 
@@ -26,18 +29,24 @@ function Autocomplete() {
   };
 
   const fetchSuggestions = async (value: string) => {
-    if (value) {
-      try {
-        const suggestions = await getData(value);
-        setSuggestionsList(suggestions);
-      } catch (error) {
-        console.error("Failed to fetch suggestions", error);
-        setSuggestionsList([]);
-      }
-    } else {
+    if (value.trim() === "") {
       setSuggestionsList([]);
+      setIsSearching(false);
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+
+    try {
+      const suggestions = await getData(value);
+      setSuggestionsList(suggestions);
+      setIsSearching(suggestions.length === 0);
+    } catch (error) {
+      console.error("Failed to fetch suggestions", error);
+      setSuggestionsList([]);
+      setIsSearching(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   function highlightMatch(item: string) {
@@ -47,9 +56,9 @@ function Autocomplete() {
     return (
       <>
         {item.substring(0, startIndex)}
-        <strong style={{ color: "blue" }}>
+        <span className="highlighted-text">
           {item.substring(startIndex, endIndex)}
-        </strong>
+        </span>
         {item.substring(endIndex)}
       </>
     );
@@ -74,13 +83,14 @@ function Autocomplete() {
             <button
               className="list-element"
               key={g.gameID}
-              id={g.gameID}
+              id={`game-button-${g.gameID}`}
               onClick={() => {
                 setInputValue(g.external);
-                setIsSearching(g.external);
+                setIsSearching(false);
                 selectValue.current = g.external;
                 setSuggestionsList([]);
               }}
+              aria-label={`Select game ${g.external}`}
             >
               {highlightMatch(g.external)}
             </button>
@@ -91,7 +101,7 @@ function Autocomplete() {
       {!isLoading &&
         suggestionsList.length === 0 &&
         inputValue &&
-        !isSearching && (
+        isSearching && (
           <div className="list-container-empty">No value found.</div>
         )}
 
