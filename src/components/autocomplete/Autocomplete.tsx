@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import getData from "../../api/getData";
 import { Game } from "./Autocomplete.types";
+import loadingGif from "../../assets/loading.gif";
 
 function Autocomplete() {
   const [inputValue, setInputValue] = useState("");
   const [suggestionsList, setSuggestionsList] = useState<Game[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedValue, setSelectedValue] = useState<string | undefined>(
     undefined
   );
 
   useEffect(() => {
     if (inputValue !== selectedValue) {
+      setIsLoading(true);
       const timeoutId = setTimeout(() => {
         fetchSuggestions(inputValue);
       }, 300);
@@ -34,6 +37,7 @@ function Autocomplete() {
     } else {
       setSuggestionsList([]);
     }
+    setIsLoading(false);
   };
 
   function highlightMatch(item: string) {
@@ -61,6 +65,7 @@ function Autocomplete() {
         value={inputValue}
         onChange={(e) => handleInputChange(e)}
       ></input>
+      {isLoading && <img className="loading" src={loadingGif}></img>}
       {suggestionsList.length > 0 && (
         <div className="list-container">
           {suggestionsList.map((g) => (

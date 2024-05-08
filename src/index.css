@@ -24,3 +24,9 @@
   padding: 10px;
   border-radius: 5px;
 }
+
+.loading {
+  width: 20px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
