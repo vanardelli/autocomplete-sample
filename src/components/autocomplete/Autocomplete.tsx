@@ -10,6 +10,8 @@ function Autocomplete() {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const selectValue = useRef<string | undefined>(undefined);
 
+  console.log("rendering controlled");
+
   useEffect(() => {
     if (inputValue !== selectValue.current) {
       setIsSearching(true);

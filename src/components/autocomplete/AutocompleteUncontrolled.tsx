@@ -1,35 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import getData from "../../api/getData";
 import { Game } from "./Autocomplete.types";
 import loadingGif from "../../assets/loading.gif";
 
 function AutocompleteUncontrolled() {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  //   const [inputValue, setInputValue] = useState("");
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const [suggestionsList, setSuggestionsList] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const selectValue = useRef<string | undefined>(undefined);
 
-  useEffect(() => {
-    if (inputRef.current?.value !== selectValue.current) {
-      setIsSearching(true);
-      setIsLoading(true);
-      const timeoutId = setTimeout(() => {
-        fetchSuggestions(inputRef?.current?.value);
-      }, 300);
-      return () => clearTimeout(timeoutId);
-    } else {
-      setIsSearching(false);
-      setSuggestionsList([]);
-    }
-  }, []);
+  console.log("rendering uncontrolled");
 
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = inputRef.current?.value;
-    if (value) {
-      fetchSuggestions(value);
+  const handleInputChange = () => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current); // Clear existing timeout
     }
+    debounceTimeout.current = setTimeout(() => {
+      if (inputRef.current) {
+        fetchSuggestions(inputRef.current.value);
+      }
+    }, 300); // Set new timeout
   };
 
   const fetchSuggestions = async (value: string | undefined) => {
@@ -40,6 +32,7 @@ function AutocompleteUncontrolled() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const suggestions = await getData(value);
       setSuggestionsList(suggestions);
